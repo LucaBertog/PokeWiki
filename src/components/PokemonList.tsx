@@ -5,7 +5,7 @@ import { fetchPokemonList, fetchPokemonDetails } from '../services/pokeapi';
 import { Pokemon } from '../types';
 import PokemonCard from './PokemonCard';
 
-const PokemonList: React.FC<{ search?: string }> = ({ search = "" }) => {
+const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ search = "", type = null }) => {
     const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [offset, setOffset] = useState<number>(0);
@@ -46,7 +46,8 @@ const PokemonList: React.FC<{ search?: string }> = ({ search = "" }) => {
     };
 
     const filteredList = pokemonList.filter(pokemon =>
-        pokemon.name.toLowerCase().includes(search.toLowerCase())
+        pokemon.name.toLowerCase().includes(search.toLowerCase()) &&
+        (type ? pokemon.types.some((t: any) => t.type.name === type) : true)
     );
 
     return (
@@ -54,7 +55,7 @@ const PokemonList: React.FC<{ search?: string }> = ({ search = "" }) => {
             {loading && pokemonList.length === 0 ? (
                 <p>Loading...</p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-4">
                     {filteredList.map((pokemon) => (
                         <PokemonCard
                             key={pokemon.name}
@@ -66,8 +67,12 @@ const PokemonList: React.FC<{ search?: string }> = ({ search = "" }) => {
                     ))}
                 </div>
             )}
-            <button onClick={loadMore} disabled={loading}>
-                Load More
+            <button
+                onClick={loadMore}
+                disabled={loading}
+                className="mt-8 mx-auto block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {loading ? "Carregando..." : "Carregar mais"}
             </button>
         </div>
     );

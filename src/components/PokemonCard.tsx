@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import clsx from "clsx";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { Pokemon } from "../types";
+import { pokemonTypes } from "../utils/pokemonTypes";
 
 type Props = {
   pokemon: Pokemon;
@@ -36,14 +37,19 @@ export default function PokemonCard({
           />
           <h2 className="text-lg font-bold capitalize">{pokemon.name}</h2>
           <div className="flex gap-2 mt-1 mb-2">
-            {pokemon.types.map((t: any) => (
-              <span
-                key={t.type.name}
-                className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 capitalize"
-              >
-                {t.type.name}
-              </span>
-            ))}
+            {pokemon.types.map((t: any) => {
+              const typeInfo = pokemonTypes[t.type.name] || pokemonTypes["normal"];
+              const Icon = typeInfo.icon;
+              return (
+                <span
+                  key={t.type.name}
+                  className={`flex items-center gap-1 text-xs px-2 py-1 rounded capitalize font-semibold ${typeInfo.bg} text-white`}
+                >
+                  <Icon className="text-base" />
+                  {t.type.name}
+                </span>
+              );
+            })}
           </div>
           <button
             className="mt-auto bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition-colors"
@@ -114,8 +120,22 @@ export default function PokemonCard({
                   .join(", ")}
               </div>
               <div className="mb-4">
-                <b>Tipos:</b>{" "}
-                {pokemon.types.map((t: any) => t.type.name).join(", ")}
+                <b>Tipo(s):</b>{" "}
+                <div className="flex gap-2 mt-2">
+                  {pokemon.types.map((t: any) => {
+                    const typeInfo = pokemonTypes[t.type.name] || pokemonTypes["normal"];
+                    const Icon = typeInfo.icon;
+                    return (
+                      <span
+                        key={t.type.name}
+                        className={`flex items-center gap-1 text-xs px-2 py-1 rounded capitalize font-semibold ${typeInfo.bg} text-white`}
+                      >
+                        <Icon className="text-base" />
+                        {t.type.name}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
               <div className="mb-4">
                 <b>Estatísticas Base</b>
