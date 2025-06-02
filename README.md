@@ -17,7 +17,7 @@ Projeto desenvolvido em [Next.js](https://nextjs.org/) + [React](https://react.d
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/seu-usuario/pokewiki.git
+   git clone https://github.com/LucaBertog/PokeWiki.git
    cd pokewiki
    ```
 
