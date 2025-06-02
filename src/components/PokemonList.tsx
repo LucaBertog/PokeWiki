@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { fetchPokemonList, fetchPokemonDetails } from '../services/pokeapi';
+import axios from 'axios';
 import { Pokemon } from '../types';
 import PokemonCard from './PokemonCard';
 
@@ -15,18 +16,23 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
     useEffect(() => {
         const loadPokemon = async () => {
             setLoading(true);
-            const data = await fetchPokemonList(limit, offset);
-            const results = (data as { results: { name: string }[] }).results;
-            const details = await Promise.all(
-                results.map((item: { name: string }) => fetchPokemonDetails(item.name))
-            );
-            setPokemonList((prev) => [...prev, ...(details as Pokemon[])]);
+            if (type) {
+                const res = await axios.get(`https://pokeapi.co/api/v2/type/${type}`);
+                const pokemons = (res.data as { pokemon: { pokemon: { name: string } }[] }).pokemon.map((p) => p.pokemon.name);
+                const firstPokemons = pokemons.slice(0, 30);
+                const details = await Promise.all(firstPokemons.map((name: string) => fetchPokemonDetails(name)));
+                setPokemonList(details as Pokemon[]);
+            } else {
+                const data = await fetchPokemonList(30, 0);
+                const results = (data as { results: { name: string }[] }).results;
+                const details = await Promise.all(results.map((item) => fetchPokemonDetails(item.name)));
+                setPokemonList(details as Pokemon[]);
+            }
             setLoading(false);
         };
 
         loadPokemon();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [offset, limit]);
+    }, [type]);
 
     const loadMore = () => {
         setOffset((prev) => prev + limit);
@@ -41,13 +47,11 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
     };
 
     const getEvolutionsFor = (pokemon: Pokemon) => {
-        // Lógica para obter as evoluções de um Pokémon
         return [];
     };
 
     const filteredList = pokemonList.filter(pokemon =>
-        pokemon.name.toLowerCase().includes(search.toLowerCase()) &&
-        (type ? pokemon.types.some((t: any) => t.type.name === type) : true)
+        pokemon.name.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
@@ -60,8 +64,6 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
                         <PokemonCard
                             key={pokemon.name}
                             pokemon={pokemon}
-                            isFavorite={favorites.includes(pokemon.name)}
-                            onToggleFavorite={toggleFavorite}
                             evolutions={getEvolutionsFor(pokemon)}
                         />
                     ))}

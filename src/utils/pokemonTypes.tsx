@@ -6,9 +6,9 @@ import {
 import { IconType } from "react-icons";
 
 type TypeInfo = {
-  border: string; // classe Tailwind para borda
-  text: string;   // classe Tailwind para texto
-  bg: string;     // classe Tailwind para fundo
+  border: string; 
+  text: string;   
+  bg: string;     
   icon: IconType;
 };
 

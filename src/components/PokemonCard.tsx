@@ -5,21 +5,24 @@ import clsx from "clsx";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import { Pokemon } from "../types";
 import { pokemonTypes } from "../utils/pokemonTypes";
+import { toggleFavorite, getFavorites } from "../utils/pokemonFavs";
 
 type Props = {
   pokemon: Pokemon;
-  isFavorite: boolean;
-  onToggleFavorite: (name: string) => void;
   evolutions: Pokemon[];
 };
 
 export default function PokemonCard({
   pokemon,
-  isFavorite,
-  onToggleFavorite,
   evolutions,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(getFavorites().includes(pokemon.name));
+
+  const handleToggleFavorite = () => {
+    toggleFavorite(pokemon.name);
+    setIsFavorite(getFavorites().includes(pokemon.name));
+  };
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -35,7 +38,24 @@ export default function PokemonCard({
             alt={pokemon.name}
             className="w-24 h-24 mb-2"
           />
-          <h2 className="text-lg font-bold capitalize">{pokemon.name}</h2>
+          <h2 className="text-lg font-bold capitalize flex items-center gap-2">
+            {pokemon.name}
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                handleToggleFavorite();
+              }}
+              className="ml-1"
+              aria-label={isFavorite ? "Desfavoritar" : "Favoritar"}
+              tabIndex={0}
+            >
+              {isFavorite ? (
+                <FaStar className="text-yellow-400 text-lg" />
+              ) : (
+                <FaRegStar className="text-gray-400 text-lg" />
+              )}
+            </button>
+          </h2>
           <div className="flex gap-2 mt-1 mb-2">
             {pokemon.types.map((t: any) => {
               const typeInfo = pokemonTypes[t.type.name] || pokemonTypes["normal"];
@@ -52,7 +72,7 @@ export default function PokemonCard({
             })}
           </div>
           <button
-            className="mt-auto bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition-colors"
+            className="mt-auto font-semibold cursor-pointer bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               setOpen(true);
@@ -69,7 +89,7 @@ export default function PokemonCard({
             <div className="flex items-center gap-2 mb-2">
               <h1 className="text-2xl font-bold capitalize">{pokemon.name}</h1>
               <button
-                onClick={() => onToggleFavorite(pokemon.name)}
+                onClick={handleToggleFavorite}
                 className="ml-2"
                 aria-label={isFavorite ? "Desfavoritar" : "Favoritar"}
               >
@@ -86,7 +106,7 @@ export default function PokemonCard({
               #{pokemon.id.toString().padStart(3, "0")}
             </span>
             <Dialog.Close asChild>
-              <button className="text-2xl font-bold text-gray-400 hover:text-gray-600">
+              <button className="text-2xl cursor-pointer font-bold text-gray-400 hover:text-gray-600">
                 ×
               </button>
             </Dialog.Close>
@@ -120,16 +140,13 @@ export default function PokemonCard({
                   .join(", ")}
               </div>
               <div className="mb-4">
-                <b>Tipo(s):</b>{" "}
+                <b>Tipo(s):</b>
                 <div className="flex gap-2 mt-2">
                   {pokemon.types.map((t: any) => {
                     const typeInfo = pokemonTypes[t.type.name] || pokemonTypes["normal"];
                     const Icon = typeInfo.icon;
                     return (
-                      <span
-                        key={t.type.name}
-                        className={`flex items-center gap-1 text-xs px-2 py-1 rounded capitalize font-semibold ${typeInfo.bg} text-white`}
-                      >
+                      <span key={t.type.name} className={`flex items-center gap-1 text-xs px-2 py-1 rounded capitalize font-semibold ${typeInfo.bg} text-white`}>
                         <Icon className="text-base" />
                         {t.type.name}
                       </span>
@@ -142,13 +159,13 @@ export default function PokemonCard({
                 <div className="space-y-1 mt-2">
                   {pokemon.stats.map((stat: any) => (
                     <div key={stat.stat.name} className="flex items-center gap-2">
-                      <span className="w-32 capitalize">
+                      <span className="w-32 capitalize text-gray-600 font-semibold">
                         {stat.stat.name.replace("special-", "Sp. ")}
                       </span>
                       <div className="flex-1 bg-gray-200 rounded h-2 relative">
                         <div
-                          className={clsx(
-                            "absolute left-0 top-0 h-2 rounded",
+                          className={
+                            clsx("absolute left-0 top-0 h-2 rounded",
                             stat.stat.name === "hp" && "bg-red-400",
                             stat.stat.name === "attack" && "bg-yellow-400",
                             stat.stat.name === "defense" && "bg-blue-400",
@@ -162,7 +179,7 @@ export default function PokemonCard({
                           }}
                         />
                       </div>
-                      <span className="w-8 text-right">{stat.base_stat}</span>
+                      <span className="w-8 text-right text-gray-600 font-semibold">{stat.base_stat}</span>
                     </div>
                   ))}
                 </div>
