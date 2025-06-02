@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaWhatsapp, FaInstagram } from "react-icons/fa";
 import PokemonList from "../components/PokemonList";
 import { pokemonTypes } from "../utils/pokemonTypes";
 
@@ -9,7 +9,7 @@ export default function Home() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen bg-white text-black flex flex-col">
       <header className="flex items-center justify-between px-6 py-4 shadow-sm bg-white sticky top-0 z-10">
         <span className="text-2xl font-bold text-blue-600 select-none">PokeWiki</span>
         <div className="flex-1 flex justify-center">
@@ -66,10 +66,43 @@ export default function Home() {
         })}
       </div>
 
-      {/* Lista de Pokémons */}
       <main className="px-4 sm:px-8 md:px-16 lg:px-32 py-8">
         <PokemonList search={search} type={selectedType} />
       </main>
+
+      <footer className="mt-auto w-full bg-gray-100 border-t py-6 flex flex-col items-center gap-4">
+        <span className="text-sm text-gray-700 font-medium text-center">
+          Desenvolvido por Lucas Bertoli para Case
+        </span>
+        <div className="flex gap-4 flex-wrap justify-center">
+          <a
+            href="https://wa.me/5541991295522"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-500 text-white font-semibold hover:bg-green-600 transition"
+          >
+            <FaWhatsapp className="text-lg" />
+            WhatsApp
+          </a>
+          <a
+            href="https://instagram.com/lucabertog"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-semibold hover:brightness-110 transition"
+          >
+            <FaInstagram className="text-lg" />
+            Instagram
+          </a>
+          <a
+            href="https://lucabertog.bio.link"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+          >
+            <span className="font-bold">Bio.link</span>
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
