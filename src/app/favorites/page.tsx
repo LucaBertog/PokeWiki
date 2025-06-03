@@ -2,15 +2,29 @@
 import React, { useEffect, useState } from "react";
 import { getFavorites } from "../../utils/pokemonFavs";
 import PokemonCard from "../../components/PokemonCard";
-import { fetchPokemonDetails } from "../../services/pokeapi";
+import { fetchPokemonDetails, fetchPokemonEvolutions } from "../../services/pokeapi";
 
 export default function FavoritosPage() {
   const [pokemons, setPokemons] = useState<any[]>([]);
+  const [evolutionsMap, setEvolutionsMap] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
     const favs = getFavorites();
     Promise.all(favs.map((name) => fetchPokemonDetails(name))).then(setPokemons);
   }, []);
+
+  useEffect(() => {
+    const fetchEvos = async () => {
+      const entries = await Promise.all(
+        pokemons.map(async (pokemon) => {
+          const evolutions = await fetchPokemonEvolutions(pokemon.name);
+          return [pokemon.name, evolutions];
+        })
+      );
+      setEvolutionsMap(Object.fromEntries(entries));
+    };
+    if (pokemons.length > 0) fetchEvos();
+  }, [pokemons]);
 
   return (
     <div className="min-h-screen bg-blue-50 text-black flex flex-col">
@@ -29,7 +43,11 @@ export default function FavoritosPage() {
             </span>
           ) : (
             pokemons.map((pokemon) => (
-              <PokemonCard key={pokemon.name} pokemon={pokemon} evolutions={[]} />
+              <PokemonCard
+                key={pokemon.name}
+                pokemon={pokemon}
+                evolutions={evolutionsMap[pokemon.name] || []}
+              />
             ))
           )}
         </div>

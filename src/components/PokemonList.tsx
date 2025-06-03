@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { fetchPokemonList, fetchPokemonDetails } from '../services/pokeapi';
+import { fetchPokemonList, fetchPokemonDetails, fetchPokemonEvolutions } from '../services/pokeapi';
 import axios from 'axios';
 import { Pokemon } from '../types';
 import PokemonCard from './PokemonCard';
@@ -12,6 +12,7 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
     const [offset, setOffset] = useState<number>(0);
     const [limit] = useState<number>(20);
     const [favorites, setFavorites] = useState<string[]>([]);
+    const [evolutionsMap, setEvolutionsMap] = useState<Record<string, any[]>>({});
 
     useEffect(() => {
         const loadPokemon = async () => {
@@ -33,6 +34,20 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
 
         loadPokemon();
     }, [type]);
+
+    useEffect(() => {
+        // Sempre que a lista de pokémons mudar, busca as evoluções
+        const fetchEvos = async () => {
+            const entries = await Promise.all(
+                pokemonList.map(async (pokemon) => {
+                    const evolutions = await fetchPokemonEvolutions(pokemon.name);
+                    return [pokemon.name, evolutions];
+                })
+            );
+            setEvolutionsMap(Object.fromEntries(entries));
+        };
+        if (pokemonList.length > 0) fetchEvos();
+    }, [pokemonList]);
 
     const loadMore = () => {
         setOffset((prev) => prev + limit);
@@ -64,7 +79,7 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
                         <PokemonCard
                             key={pokemon.name}
                             pokemon={pokemon}
-                            evolutions={getEvolutionsFor(pokemon)}
+                            evolutions={evolutionsMap[pokemon.name] || []}
                         />
                     ))}
                 </div>
