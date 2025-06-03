@@ -19,21 +19,27 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
             setLoading(true);
             if (type) {
                 const res = await axios.get(`https://pokeapi.co/api/v2/type/${type}`);
-                const pokemons = (res.data as { pokemon: { pokemon: { name: string } }[] }).pokemon.map((p) => p.pokemon.name);
-                const firstPokemons = pokemons.slice(0, 30);
-                const details = await Promise.all(firstPokemons.map((name: string) => fetchPokemonDetails(name)));
-                setPokemonList(details as Pokemon[]);
+                const pokemonsRaw = (res.data as { pokemon: { pokemon: { name: string } }[] }).pokemon.map((p) => p.pokemon.name);
+                // Remove duplicatas
+                const pokemons = Array.from(new Set(pokemonsRaw));
+                const paginated = pokemons.slice(offset, offset + limit);
+                const details = await Promise.all(paginated.map((name: string) => fetchPokemonDetails(name)));
+                setPokemonList(prev =>
+                    offset === 0 ? details as Pokemon[] : [...prev, ...details as Pokemon[]]
+                );
             } else {
-                const data = await fetchPokemonList(30, 0);
+                const data = await fetchPokemonList(limit, offset);
                 const results = (data as { results: { name: string }[] }).results;
                 const details = await Promise.all(results.map((item) => fetchPokemonDetails(item.name)));
-                setPokemonList(details as Pokemon[]);
+                setPokemonList(prev =>
+                    offset === 0 ? details as Pokemon[] : [...prev, ...details as Pokemon[]]
+                );
             }
             setLoading(false);
         };
 
         loadPokemon();
-    }, [type]);
+    }, [type, offset, limit]);
 
     useEffect(() => {
         // Sempre que a lista de pokémons mudar, busca as evoluções
@@ -90,7 +96,7 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
             <button
                 onClick={loadMore}
                 disabled={loading}
-                className="mt-8 mx-auto block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-8 cursor-pointer mx-auto block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {loading ? "Carregando..." : "Carregar mais"}
             </button>
