@@ -72,7 +72,10 @@ const PokemonList: React.FC<{ search?: string; type?: string | null }> = ({ sear
     return (
         <div>
             {loading && pokemonList.length === 0 ? (
-                <p>Loading...</p>
+                <div className="flex flex-col items-center justify-center py-12">
+                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <span className="text-blue-700 font-semibold text-lg">Carregando Pokémons...</span>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-4">
                     {filteredList.map((pokemon) => (
